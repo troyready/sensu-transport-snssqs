@@ -1,3 +1,8 @@
+## [2.1.0] - 2017-04-28
+
+- Make SNS raw message delivery optional [GH-2]
+- Allow IAM credentials to be specified in configuratino [GH-2]
+
 ## [2.0.4] - 2016-11-08
 
 - Forked to -ng gem to relax contribution guidelines
