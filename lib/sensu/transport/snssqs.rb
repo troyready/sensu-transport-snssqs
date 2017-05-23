@@ -1,6 +1,7 @@
 require 'sensu/transport/base'
 require 'aws-sdk'
 require 'statsd-ruby'
+require 'json'
 
 module Sensu
   module Transport
@@ -191,7 +192,7 @@ module Sensu
             begin
               if !msg.key? 'message_attributes'
                 # extracting original SNS message
-                tmp_body = JSON.parse msg.body
+                tmp_body = ::JSON.parse msg.body
                 # if there is no Message, this isn't a SNS message and something has gone terribly wrong
                 next if tmp_body.key? 'Message'
                 # replacing the body with the SNS message (as it would be in a raw delivered SNS-SQS message)
@@ -207,7 +208,7 @@ module Sensu
                 end
               end
               msg
-            rescue JSON::JSONError => e
+            rescue ::JSON::JSONError => e
               self.logger.info(e)
             end
           end
