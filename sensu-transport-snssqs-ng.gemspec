@@ -1,6 +1,6 @@
 Gem::Specification.new do |g|
   g.name = 'sensu-transport-snssqs-ng'
-  g.version = '2.1.0'
+  g.version = '2.1.1'
   g.summary = 'Sensu transport over Amazon SNS & SQS'
   g.authors = ['Troy Ready']
   g.email = 'troy.ready+gems@gmail.com'
