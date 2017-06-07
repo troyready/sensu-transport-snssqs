@@ -186,16 +186,24 @@ module Sensu
             # if this is a raw SNS message, it exists in the root of the message and no conversion is needed
             # if it doesn't, it is an encapsulated messsage (meaning the SNS message is a stringified JSON in the body of the SQS message)
             begin
-              if !msg.key? 'message_attributes'
+              self.logger.debug('[transport-snssqs] msg parse start')
+              unless msg.key? 'message_attributes'
                 # extracting original SNS message
                 tmp_body = ::JSON.parse msg.body
+                self.logger.debug('[transport-snssqs] msg parsed from JSON')
                 # if there is no Message, this isn't a SNS message and something has gone terribly wrong
-                next if tmp_body.key? 'Message'
+                unless tmp_body.key? 'Message'
+                  self.logger.info('[transport-snssqs] msg body without SNS Message received')
+                  next
+                end
                 # replacing the body with the SNS message (as it would be in a raw delivered SNS-SQS message)
                 msg.body = tmp_body['Message']
                 msg.message_attributes = {}
                 # discarding messages without attributes, since this would lead to an exception in subscribe
-                next if tmp_body.key? 'MessageAttributes'
+                unless tmp_body.key? 'MessageAttributes'
+                  self.logger.info('[transport-snssqs] msg body without message attributes received')
+                  next
+                end
                 # parsing the message_attributes
                 tmp_body['MessageAttributes'].each do |name, value|
                   msg.message_attributes[name] = Aws::SQS::Types::MessageAttributeValue.new
@@ -203,6 +211,7 @@ module Sensu
                   msg.message_attributes[name].data_type = 'String'
                 end
               end
+              self.logger.debug('[transport-snssqs] msg parsed successfully')
               msg
             rescue ::JSON::JSONError => e
               self.logger.info(e)
