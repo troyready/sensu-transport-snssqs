@@ -1,3 +1,7 @@
+## [2.1.2] - 2017-06-07
+
+- Fix non-raw message parsing [GH-4]
+
 ## [2.1.1] - 2017-05-23
 
 - Use ruby stdlib json [GH-3]
