@@ -160,13 +160,23 @@ module Sensu
       end
 
       def send_message(msg, attributes, &callback)
-        resp = @sns.publish(
-          target_arn: @settings[:publishing_sns_topic_arn],
-          message: msg,
-          message_attributes: attributes
-        )
-        statsd_incr("sns.#{@settings[:publishing_sns_topic_arn]}.message.published")
-        callback.call({ :response => resp }) if callback
+        begin
+          resp = @sns.publish(
+            target_arn: @settings[:publishing_sns_topic_arn],
+            message: msg,
+            message_attributes: attributes
+          )
+        rescue => e
+          self.logger.error('[transport-snssqs] Could not publish to sns due to ' + e.message)
+          sleep(5)
+          resp = @sns.publish(
+            target_arn: @settings[:publishing_sns_topic_arn],
+            message: msg,
+            message_attributes: attributes
+          )
+          statsd_incr("sns.#{@settings[:publishing_sns_topic_arn]}.message.published")
+          callback.call({ :response => resp }) if callback
+        end
       end
 
       PIPE_ARR = [PIPE_STR]
