@@ -1,3 +1,8 @@
+## [2.2.0] - 2017-12-15
+
+- Add 2 automatic retries of message posting if an exception is raised [GH-5]
+- Update gem signing key
+
 ## [2.1.2] - 2017-06-07
 
 - Fix non-raw message parsing [GH-4]
