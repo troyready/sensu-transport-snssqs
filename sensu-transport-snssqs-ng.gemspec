@@ -1,6 +1,6 @@
 Gem::Specification.new do |g|
   g.name = 'sensu-transport-snssqs-ng'
-  g.version = '2.1.1'
+  g.version = '2.2.0'
   g.summary = 'Sensu transport over Amazon SNS & SQS'
   g.authors = ['Troy Ready']
   g.email = 'troy.ready+gems@gmail.com'
@@ -11,5 +11,6 @@ Gem::Specification.new do |g|
   g.licenses = ['Apache-2.0']
   g.add_dependency('aws-sdk')
   g.add_dependency('eventmachine')
+  g.add_dependency('retries')
   g.add_dependency('statsd-ruby')
 end

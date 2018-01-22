@@ -2,6 +2,7 @@ require 'sensu/transport/base'
 require 'aws-sdk'
 require 'statsd-ruby'
 require 'json'
+require 'retries'
 
 module Sensu
   module Transport
@@ -160,11 +161,13 @@ module Sensu
       end
 
       def send_message(msg, attributes, &callback)
-        resp = @sns.publish(
-          target_arn: @settings[:publishing_sns_topic_arn],
-          message: msg,
-          message_attributes: attributes
-        )
+        with_retries(:max_tries => 2, :base_sleep_seconds => 5.0) do
+          resp = @sns.publish(
+            target_arn: @settings[:publishing_sns_topic_arn],
+            message: msg,
+            message_attributes: attributes
+          )
+        end
         statsd_incr("sns.#{@settings[:publishing_sns_topic_arn]}.message.published")
         callback.call({ :response => resp }) if callback
       end
