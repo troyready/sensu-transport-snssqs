@@ -1,3 +1,7 @@
+## [2.2.1] - 2018-01-22
+
+- Fix retry library options (#6)
+
 ## [2.2.0] - 2017-12-15
 
 - Add 2 automatic retries of message posting if an exception is raised [GH-5]
