@@ -167,9 +167,9 @@ module Sensu
             message: msg,
             message_attributes: attributes
           )
+          statsd_incr("sns.#{@settings[:publishing_sns_topic_arn]}.message.published")
+          callback.call({ :response => resp }) if callback
         end
-        statsd_incr("sns.#{@settings[:publishing_sns_topic_arn]}.message.published")
-        callback.call({ :response => resp }) if callback
       end
 
       PIPE_ARR = [PIPE_STR]
