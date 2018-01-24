@@ -161,6 +161,7 @@ module Sensu
       end
 
       def send_message(msg, attributes, &callback)
+        resp = '' if false # need to set this before the retries block
         with_retries(:max_tries => 2, :base_sleep_seconds => 5.0, :max_sleep_seconds => 15.0) do
           resp = @sns.publish(
             target_arn: @settings[:publishing_sns_topic_arn],
