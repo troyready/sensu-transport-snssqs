@@ -9,7 +9,8 @@ Gem::Specification.new do |g|
   g.files = ['lib/sensu/transport/snssqs.rb']
   g.homepage = 'https://github.com/troyready/sensu-transport-snssqs-ng'
   g.licenses = ['Apache-2.0']
-  g.add_dependency('aws-sdk')
+  g.add_dependency('aws-sdk-sns')
+  g.add_dependency('aws-sdk-sqs')
   g.add_dependency('eventmachine')
   g.add_dependency('retries')
   g.add_dependency('statsd-ruby')

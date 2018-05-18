@@ -1,5 +1,6 @@
 require 'sensu/transport/base'
-require 'aws-sdk'
+require 'aws-sdk-sns'
+require 'aws-sdk-sqs'
 require 'statsd-ruby'
 require 'json'
 require 'retries'
