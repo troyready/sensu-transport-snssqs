@@ -1,29 +1,40 @@
 PATH
   remote: .
   specs:
-    sensu-transport-sqs (1.0)
-      aws-sdk
+    sensu-transport-snssqs-ng (2.3.0)
+      aws-sdk-sns
+      aws-sdk-sqs
       eventmachine
+      retries
+      statsd-ruby
 
 GEM
   remote: https://rubygems.org/
   specs:
-    aws-sdk (2.1.0)
-      aws-sdk-resources (= 2.1.0)
-    aws-sdk-core (2.1.0)
+    aws-eventstream (1.0.0)
+    aws-partitions (1.87.0)
+    aws-sdk-core (3.21.2)
+      aws-eventstream (~> 1.0)
+      aws-partitions (~> 1.0)
+      aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.1.0)
-      aws-sdk-core (= 2.1.0)
-    eventmachine (1.0.7)
-    jmespath (1.0.2)
-      multi_json (~> 1.0)
-    multi_json (1.11.1)
+    aws-sdk-sns (1.1.0)
+      aws-sdk-core (~> 3)
+      aws-sigv4 (~> 1.0)
+    aws-sdk-sqs (1.3.0)
+      aws-sdk-core (~> 3)
+      aws-sigv4 (~> 1.0)
+    aws-sigv4 (1.0.2)
+    eventmachine (1.2.7)
+    jmespath (1.4.0)
+    retries (0.0.5)
+    statsd-ruby (1.4.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  sensu-transport-sqs!
+  sensu-transport-snssqs-ng!
 
 BUNDLED WITH
-   1.10.3
+   1.16.1

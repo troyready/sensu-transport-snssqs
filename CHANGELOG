@@ -1,3 +1,7 @@
+## [2.3.0] - 2018-05-24
+
+- Update to aws sdk v3 and specific aws-sdk-sns/aws-sdk-sqs gems
+
 ## [2.2.2] - 2018-01-24
 
 - Fix send_message scope error introduced in 2.2.0 (#8)
