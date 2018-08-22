@@ -22,6 +22,8 @@ Messages flow unidirectionally: from the monitored hosts to the Sensu server. In
 
 - This transport assumes that Sensu's process environment is properly configured to use the aws-sdk gem.
 
+- In order to limit the amount and costs of sns and sqs messages. This plugin can buffer messages. This can reduce costs up to 80% in our internal tests.
+
 ## Installation
 
 To use this `snssqs` transport, this gem must be in your Sensu installation's ruby include path.
@@ -82,6 +84,26 @@ The following table lists possible settings and their descriptions. The values s
 | statsd_addr              | Address to send statsd metrics to. If not set, the transport will not emit metrics to statsd.                                                                                                                                                                                                                                         |
 | statsd_namespace         | Prefix to prepend to all statsd metrics. Should not end with a period.                                                                                                                                                                                                                                                                |
 | statsd_sample_rate       | Set the sample rate for all statsd operations. This should be a string with a value between 0 and 1.0.                                                                                                                                                                                                                                |
+| buffer_messages       | Enable or disable message buffer. This should be a boolean with a value of true or false.                                                                                                                                                                                                                                |
+| check_min_ok       | The amount of ok messages before messages are buffered. This should be a number with a value between 0 and 20.                                                                                                                                                                                                                           |
+| check_max_delay       | The maximum delay in seconds between two subsequent ok messages. This should be a positive number.                                                                                                                |
+| metrics_max_size       | The maximum size of the metrics buffer. This should be a value between 0 and 200,000 (SQS limit is 256KB) number.                                                                                                                                                                                                                                                                                                                                                     |
+| metrics_max_delay       | The maximum delay in seconds before a combined metrics message is sent. This should be a positive number.                                                                                                                                                                                                                                                                                                                                                     |
+
+### Buffer implemntation
+
+- The buffer can be disabled using the buffer_messages option.
+
+- Consecutive positive sensu check events (status=0) are skipped once the min amount of OK messages are sent (check_min_ok) and the maximum delay is not reached (check_max_delay).
+
+- Negative sensu check events (status!=0) are sent all the time and are never skipped.
+
+- Metrics are concatenated until the maximum size of the metrics buffer is reached (metrics_max_size) or the maximum delay is reached (metrics_max_delay).
+
+- Metrics are summed up in a single sensu metric event with the name combined_metrics.
+
+- The combined_metrics can contain multiple metrics of the same check with different timestamps. This is not a problem in a graphite like format where each line contains a key, value and timestamp.
+
 ## License
 
 `sensu-transport-snssqs-ng` is released under the Apache 2.0 License, full copy of which is inside of the `LICENSE` file.
