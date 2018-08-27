@@ -150,7 +150,7 @@ module Sensu
         json_message = ::JSON.parse raw_message
         drop = false
 
-        if @settings[:buffer_messages] && json_message.key?('check')
+        if @settings[:buffer_messages] && json_message.key?('check') && json_message.key?('client')
           if json_message['check']['type'] != 'metric'
             return handleBufferCheckMessage(raw_message, json_message)
           elsif json_message['check']['type'] == 'metric'
@@ -167,29 +167,39 @@ module Sensu
 
       def handleBufferCheckMessage(raw_message, json_message)
         drop = false
+        json_message['check']['type'] = 'standard' unless json_message['check'].key?('type')
 
-        # create initial history
-        unless @history.key? json_message['check']['name']
-          logger.debug("[transport-snssqs] creating history for #{json_message['check']['name']}")
-          @history[json_message['check']['name']] = { 'ok_count' => 0, 'last_message' => 0 }
+        # create initial client history
+        unless @history.key? json_message['client']
+          logger.debug("[transport-snssqs] creating event history for client #{json_message['client']}")
+          @history[json_message['client']] = {}
+        end
+        # create initial check history
+        unless @history[json_message['client']].key? json_message['check']['name']
+          logger.debug("[transport-snssqs] creating event history for check #{json_message['check']['name']}")
+          @history[json_message['client']][json_message['check']['name']] = { 'ok_count' => 0, 'last_event' => 0 }
         end
 
         # handle ok events
         if json_message['check']['status'] == 0 && json_message['check'].key?('aggregate') == false && json_message['check'].key?('ttl') == false
-          @history[json_message['check']['name']]['ok_count'] += 1
+          @history[json_message['client']][json_message['check']['name']]['ok_count'] += 1
 
-          if @history[json_message['check']['name']]['ok_count'] < @settings[:check_min_ok]
+          if @history[json_message['client']][json_message['check']['name']]['ok_count'] < @settings[:check_min_ok]
             # history ok_count is too low
-            logger.debug("[transport-snssqs] sending message because history ok_count #{@history[json_message['check']['name']]['ok_count']} is too low for #{json_message['check']['name']}")
-            @history[json_message['check']['name']]['last_message'] = Time.now.to_i
+            logger.debug("[transport-snssqs] sending event because history ok_count #{@history[json_message['client']][json_message['check']['name']]['ok_count']} is too low for #{json_message['check']['name']}")
+            @history[json_message['client']][json_message['check']['name']]['last_event'] = Time.now.to_i
           else
-            if @history[json_message['check']['name']]['last_message'] < (Time.now.to_i - @settings[:check_max_delay])
-              # history last_message is too old
-              logger.debug("[transport-snssqs] sending message because last_message history #{Time.now.to_i - @history[json_message['check']['name']]['last_message']} is too old for #{json_message['check']['name']}")
-              @history[json_message['check']['name']]['last_message'] = Time.now.to_i
+            max_delay = @settings[:check_max_delay]
+            if json_message['check']['name'] == 'keepalive' && json_message['check'].key?('thresholds')
+              max_delay = json_message['check']['thresholds']['warning'] if json_message['check']['thresholds'].key?('warning')
+            end
+            if @history[json_message['client']][json_message['check']['name']]['last_event'] < (Time.now.to_i - max_delay)
+              # history last_event is too old
+              logger.debug("[transport-snssqs] sending event because last_event history #{Time.now.to_i - @history[json_message['client']][json_message['check']['name']]['last_event']} is too old for #{json_message['check']['name']}")
+              @history[json_message['client']][json_message['check']['name']]['last_event'] = Time.now.to_i
             else
-              # history last_message is recent
-              logger.debug("[transport-snssqs] skipping message because last_message history #{Time.now.to_i - @history[json_message['check']['name']]['last_message']} is recent for #{json_message['check']['name']}")
+              # history last_event is recent
+              logger.debug("[transport-snssqs] skipping event because last_event history #{Time.now.to_i - @history[json_message['client']][json_message['check']['name']]['last_event']} is recent for #{json_message['check']['name']}")
               # ignore whole message
               drop = true
             end
@@ -197,9 +207,9 @@ module Sensu
         # handle error events
         else
           # reset history
-          logger.info("[transport-snssqs] reseting history for #{json_message['check']['name']}")
-          @history[json_message['check']['name']]['ok_count'] = 0
-          @history[json_message['check']['name']]['last_message'] = 0
+          logger.debug("[transport-snssqs] reseting event history for #{json_message['check']['name']}")
+          @history[json_message['client']][json_message['check']['name']]['ok_count'] = 0
+          @history[json_message['client']][json_message['check']['name']]['last_event'] = 0
         end
 
         {
