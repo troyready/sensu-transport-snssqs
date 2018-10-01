@@ -222,7 +222,7 @@ module Sensu
       def handleBufferMetricMessage(raw_message, json_message)
         drop = false
 
-        if json_message['check']['status'] == 0
+        if json_message['check']['status'] == 0 && json_message['check'].key?('force_resolve') == false
 
           @metrics_buffer += json_message['check']['output']
           if @metrics_buffer.length > 102_400 || @metrics_last_flush < ((Time.now.to_i - @settings[:metrics_max_delay]))
@@ -272,6 +272,7 @@ module Sensu
           attributes['check_name'] = str_attr(json_message['check']['name']) if json_message['check'].key?('name')
           attributes['check_type'] = str_attr(json_message['check']['type']) if json_message['check'].key?('type')
           attributes['check_status'] = int_attr(json_message['check']['status']) if json_message['check'].key?('status')
+          attributes['check_force_resolve'] = int_attr(json_message['check']['status']) if json_message['check'].key?('check_force_resolve')
         end
 
         options.each do |k, v|
