@@ -181,7 +181,7 @@ module Sensu
         end
 
         # handle ok events
-        if json_message['check']['status'] == 0 && json_message['check'].key?('aggregate') == false && json_message['check'].key?('ttl') == false
+        if json_message['check']['status'] == 0 && json_message['check'].key?('aggregate') == false && json_message['check'].key?('ttl') == false && json_message['check'].key?('force_resolve') == false
           @history[json_message['client']][json_message['check']['name']]['ok_count'] += 1
 
           if @history[json_message['client']][json_message['check']['name']]['ok_count'] < @settings[:check_min_ok]
