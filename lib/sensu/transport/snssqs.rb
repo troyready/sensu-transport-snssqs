@@ -241,6 +241,10 @@ module Sensu
             drop = true
           end
         end
+        
+        if json_message['check']['status'] != 0
+          drop = true
+        end
 
         {
           'raw_message' => raw_message,
