@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sensu-transport-snssqs-ng (2.3.0)
+    sensu-transport-snssqs-ng (3.0.0)
       aws-sdk-sns
       aws-sdk-sqs
       eventmachine

@@ -22,7 +22,7 @@ Messages flow unidirectionally: from the monitored hosts to the Sensu server. In
 
 - This transport assumes that Sensu's process environment is properly configured to use the aws-sdk gem.
 
-- In order to limit the amount and costs of sns and sqs messages. This plugin can buffer messages. This can reduce costs up to 80% in our internal tests.
+- By default, messages are buffered to reduce cost (up to 80% in some testing). This can be disabled via the `buffer_messages` setting.
 
 ## Installation
 
